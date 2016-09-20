@@ -1,6 +1,4 @@
-<snippet>
-  <content><![CDATA[
-# ${1:H2 TOOL}
+# H2 TOOL
 Script to test bunch of H2-related functionalities against a target URL
 
 ## Installation
