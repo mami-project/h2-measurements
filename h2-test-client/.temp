@@ -1,0 +1,16 @@
+140159624259232:error:140920E3:SSL routines:ssl3_get_server_hello:parse tlsext:s3_clnt.c:1147:
+CONNECTED(00000003)
+Protocols advertised by server: h2, spdy/3.1, http/1.1
+---
+no peer certificate available
+---
+No client certificate CA names sent
+---
+SSL handshake has read 93 bytes and written 7 bytes
+---
+New, (NONE), Cipher is (NONE)
+Secure Renegotiation IS supported
+Compression: NONE
+Expansion: NONE
+Next protocol: (2) 
+No ALPN negotiated
