@@ -30,8 +30,8 @@ tar xzvf $openssl_src
 cp s_client.c ./openssl-1.0.2d/apps/
 
 # compile and install 
-#cd openssl-1.0.2d
-#./config
-#sudo make
-#sudo make install
-#cd
+cd openssl-1.0.2d
+./config
+sudo make
+sudo make install
+cd
