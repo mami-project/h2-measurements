@@ -40,6 +40,7 @@ ip="n/a"                     # ip resolved for url
 org="n/a"                    # organization behind url  
 country="n/a"                # country of ip (maxmind) 
 AS="n/a"                     # AS of ip (maxmind) 
+openssl_path=""              # path where patched openssl is 
 
 # read optional input 
 [[ $# -eq 2 ]] && DEBUG=1
@@ -53,6 +54,9 @@ if ! hash getent 2>/dev/null; then
 	echo "!! Install <<getent>> as required !!" 
 	exit -1 
 fi 
+
+# set openssl path 
+openssl_path="/usr/local/ssl/bin/"
 
 # whoise for organization 
 ip=`getent ahostsv4 $url | head -1 | cut -f 1 -d ' '`
@@ -91,10 +95,10 @@ fi
 myprint "Testing URL: $url IP: $ip Country: $country Org: $org AS: $AS"
 
 # testing ALPN support 
-if hash /usr/local/ssl/bin/openssl 2>/dev/null; then
+if hash $openssl_path/openssl 2>/dev/null; then
 	myprint "Testing ALPN!"
 	tStart=$(($(date +%s%N)/1000000))
-	strALPN=`timeout $timeout /usr/local/ssl/bin/openssl s_client -alpn 'h2,http/1.1' -servername $url -connect $url:443  2>&1 | awk '{if($1 == "ALPN") {split($0, arr, ":"); print "ALPN:"arr[2];} if($2 == "ALPN") print "NO-ALPN"; if($2=="Connection" && $3 == "refused") print "NO-TLS"; if($1=="gethostbyname" || $0=="connect: No route to host") print "DNS-FAILURE"}'`
+	strALPN=`timeout $timeout $openssl_path/openssl s_client -alpn 'h2,http/1.1' -servername $url -connect $url:443  2>&1 | awk '{if($1 == "ALPN") {split($0, arr, ":"); print "ALPN:"arr[2];} if($2 == "ALPN") print "NO-ALPN"; if($2=="Connection" && $3 == "refused") print "NO-TLS"; if($1=="gethostbyname" || $0=="connect: No route to host") print "DNS-FAILURE"}'`
 	tEnd=$(($(date +%s%N)/1000000))
 	let "tALPN = tEnd - tStart"
 
@@ -107,7 +111,7 @@ if hash /usr/local/ssl/bin/openssl 2>/dev/null; then
 	then
 		myprint "Testing NPN!"
 		tStart=$(($(date +%s%N)/1000000))
-		timeout $tout_est /usr/local/ssl/bin/openssl s_client -nextprotoneg '' -servername $url -connect $url:443  > .temp 2>&1
+		timeout $tout_est $openssl_path/openssl s_client -nextprotoneg '' -servername $url -connect $url:443  > .temp 2>&1
 		tEnd=$(($(date +%s%N)/1000000))
 		let "tNPN = tEnd - tStart"
 		lines=`cat .temp | grep advertised | wc -l | cut -f 1 -d " "`
@@ -126,7 +130,7 @@ if hash /usr/local/ssl/bin/openssl 2>/dev/null; then
 		fi 
 	fi 
 else 
-	echo "<</usr/local/ssl/bin/openssl>> is missing. Please run script <<openssl-setup.sh>>"
+	echo "<<$openssl_path/openssl>> is missing. Please run script <<openssl-setup.sh>>"
 fi 	
 
 # test for h2c support 
